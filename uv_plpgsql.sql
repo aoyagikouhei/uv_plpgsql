@@ -9,34 +9,6 @@
 --
 -- ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく提供されます。ここでいう保証とは、商品性、特定の目的への適合性、および権利非侵害についての保証も含みますが、それに限定されるものではありません。作者または著作権者は、契約行為、不法行為、またはそれ以外であろうと、ソフトウェアに起因または関連し、あるいはソフトウェアの使用またはその他の扱いによって生じる一切の請求、損害、その他の義務について何らの責任も負わないものとします。 
 
---
--- 更新履歴
--- 2010/04/21
---   uv_to_char追加
--- 2010/02/22
---   uv_max_min_array追加
---   uv_min_array削除
---   uv_max_array削除
--- 2010/02/19
---   uv_get_date_by_week修正
--- 2010/02/18
---   uv_is_overlap修正
--- 2010/02/17
---   uv_is_overlap修正
--- 2010/02/16
---   uv_is_overlap追加
---   uv_get_date_by_week追加
---   uv_min_array追加
---   uv_max_array追加
--- 2010/02/15
---   uv_get_order_week追加
---   uv_get_first_day_of_monthのバグ修正
--- 2010/02/12
---   uv_is_all_set追加
--- 2010/02/11
---   uv_is_integers追加
---
-
 -- 文字列が設定されているか判定する
 -- 引数
 --   p_src : 判定したい文字列
@@ -840,5 +812,43 @@ BEGIN
     w_result := regexp_replace(w_result, w_dow_ary2[i], w_dow_ary1[i], 'ig');
   END LOOP;
   return w_result;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 引数が負か調べる
+-- 引数
+--   p_params : 引数配列
+-- 戻り値
+--   正の時true
+CREATE OR REPLACE FUNCTION uv_is_negatives(
+	p_params VARIADIC numeric[]
+) RETURNS BOOLEAN AS $$
+DECLARE
+BEGIN
+	FOR i IN 1..array_length(p_params, 1) LOOP
+		IF p_params[i] IS NULL OR p_params[i] < 1 THEN
+			RETURN true;
+		END IF;
+	END LOOP;
+	RETURN false;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 引数が空か調べる
+-- 引数
+--   p_params : 引数配列
+-- 戻り値
+--   空の時true
+CREATE OR REPLACE FUNCTION uv_is_empties(
+	p_params VARIADIC text[]
+) RETURNS BOOLEAN AS $$
+DECLARE
+BEGIN
+	FOR i IN 1..array_length(p_params, 1) LOOP
+		IF p_params[i] IS NULL OR '' = p_params[i] THEN
+			RETURN true;
+		END IF;
+	END LOOP;
+	RETURN false;
 END;
 $$ LANGUAGE plpgsql;
