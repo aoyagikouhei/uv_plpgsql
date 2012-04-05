@@ -852,3 +852,24 @@ BEGIN
 	RETURN false;
 END;
 $$ LANGUAGE plpgsql;
+
+-- 文字列をLIKE用にエスケープする
+-- 引数
+--   p_src : 元の文字列
+--   p_left : 左に%を入れるか
+--   p_right : 右に%を入れるか
+-- 戻り値
+--   エスケープされた文字列
+CREATE OR REPLACE FUNCTION uv_like_escape(
+	p_src TEXT
+  ,p_left BOOLEAN DEFAULT TRUE
+  ,p_right BOOLEAN DEFAULT TRUE
+) RETURNS TEXT AS $$
+DECLARE
+BEGIN
+	RETURN
+    CASE WHEN p_left THEN '%' ELSE '' END ||
+    replace(replace(p_src, '_', '\_'), '%', '\%') ||
+    CASE WHEN p_right THEN '%' ELSE '' END;
+END;
+$$ LANGUAGE plpgsql;
