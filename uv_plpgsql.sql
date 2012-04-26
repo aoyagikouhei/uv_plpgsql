@@ -160,10 +160,10 @@ $$ LANGUAGE plpgsql;
 -- 戻り値
 --   ランダムな文字列
 CREATE OR REPLACE FUNCTION uv_add_time(
-  p_ts timestamp with time zone
-  ,p_count int
-  ,p_unit text)
-RETURNS timestamp with time zone AS $$
+  p_ts TIMESTAMP WITH TIME ZONE
+  ,p_count NUMERIC
+  ,p_unit TEXT)
+RETURNS TIMESTAMP WITH TIME ZONE AS $$
 DECLARE
   w_interval interval;
   w_result timestamp with time zone;
