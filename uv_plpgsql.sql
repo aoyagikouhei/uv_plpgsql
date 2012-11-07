@@ -873,3 +873,22 @@ BEGIN
     CASE WHEN p_right THEN '%' ELSE '' END;
 END;
 $$ LANGUAGE plpgsql;
+
+-- 経過時間を取得する
+-- 引数
+--   p_first_ts : 引かれる時間
+--   p_second_ts : 引く時間
+--   p_right : 右に%を入れるか
+-- 戻り値
+--   p_first_ts - p_secondtsの経過時間
+CREATE OR REPLACE FUNCTION uv_past_seconds(
+  p_first_ts TIMESTAMPTZ
+  ,p_second_ts TIMESTAMPTZ
+) RETURNS NUMERIC AS $$
+DECLARE
+BEGIN
+  RETURN
+    date_part('epoch', p_first_ts) - 
+    date_part('epoch', p_second_ts);
+END;
+$$ LANGUAGE plpgsql;
