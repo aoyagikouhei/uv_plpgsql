@@ -879,7 +879,7 @@ $$ LANGUAGE plpgsql;
 --   p_first_ts : 引かれる時間
 --   p_second_ts : 引く時間
 -- 戻り値
---   p_first_ts - p_secondtsの経過時間
+--   p_first_ts - p_second_tsの経過時間
 CREATE OR REPLACE FUNCTION uv_past_seconds(
   p_first_ts TIMESTAMPTZ
   ,p_second_ts TIMESTAMPTZ
