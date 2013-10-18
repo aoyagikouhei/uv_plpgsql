@@ -96,4 +96,61 @@ BEGIN
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
- 
+
+-- 同じ値があるかチェック
+-- 引数
+--   p_table_name : テーブル名
+--   p_column_name : カラム名
+--   p_value : チェックする値
+--   p_id_column_name : IDのカラム名
+--   p_id : IDの値
+--   p_condition : 付加する絞り込み
+-- 戻り値
+--   同じ値がある場合はtrue
+CREATE OR REPLACE FUNCTION dyn_check_same_value(
+  p_table_name TEXT
+  ,p_column_name TEXT
+  ,p_value TEXT
+  ,p_id_column_name TEXT DEFAULT NULL
+  ,p_id BIGINT DEFAULT NULL
+  ,p_condition TEXT DEFAULT NULL
+) RETURNS BOOLEAN AS $FUNCTION$
+DECLARE
+  w_sql TEXT;
+  w_value TEXT;
+BEGIN
+  w_sql := $$
+    SELECT
+      $$ || p_column_name || $$
+    FROM
+      $$ || p_table_name || $$
+    WHERE
+      $$ || p_column_name || $$ = $1
+  $$
+  ;
+  IF p_condition IS NOT NULL THEN
+    w_sql := w_sql || ' AND ' || p_condition;
+  END IF;
+
+  IF p_id_column_name IS NULL OR p_id IS NULL THEN
+    EXECUTE w_sql 
+    INTO
+      w_value
+    USING
+      p_value
+    ;
+  ELSE
+    EXECUTE w_sql || $$
+      AND $$ || p_id_column_name || $$ <> $2
+    $$
+    INTO
+      w_value
+    USING
+      p_value
+      ,p_id
+    ;
+  END IF;
+  RETURN w_value IS NOT NULL;
+END;
+$FUNCTION$ LANGUAGE plpgsql;
+
