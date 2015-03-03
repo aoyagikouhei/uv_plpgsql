@@ -154,3 +154,43 @@ BEGIN
 END;
 $FUNCTION$ LANGUAGE plpgsql;
 
+-- シーケンスをクリアーする
+-- 引数
+--   p_key : キー
+-- 戻り値
+--   無し
+-- 例外
+CREATE OR REPLACE FUNCTION dyn_set_clear_sequence(
+  p_key TEXT
+) RETURNS VOID AS $FUNCTION$
+DECLARE
+  w_max BIGINT;
+BEGIN
+  -- 最大のID取得
+  EXECUTE $$
+    SELECT
+      MAX($$ || p_key || $$_id)
+      FROM
+        t_$$ || p_key || $$
+  $$ INTO
+    w_max
+  ;
+  CASE WHEN w_max IS NULL THEN
+    -- 最大値が空 (テーブルにデータがない) = シーケンスを初期化（1から開始)
+    EXECUTE $$
+      SELECT SETVAL($1, 1, false)
+    $$ USING
+      't_' || p_key || '_all_' || p_key || '_id_seq'
+    ;
+  ELSE
+    -- 最大IDを設定
+    EXECUTE $$
+      SELECT SETVAL($1 ,$2)
+    $$ USING
+      't_' || p_key || '_all_' || p_key || '_id_seq'
+      ,w_max
+    ;
+  END CASE;
+END;
+$FUNCTION$ LANGUAGE plpgsql;
+
