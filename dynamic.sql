@@ -157,11 +157,13 @@ $FUNCTION$ LANGUAGE plpgsql;
 -- シーケンスをクリアーする
 -- 引数
 --   p_key : キー
+--   p_postfix : ポストフィックス
 -- 戻り値
 --   無し
 -- 例外
 CREATE OR REPLACE FUNCTION dyn_set_clear_sequence(
   p_key TEXT
+  ,p_postfix TEXT DEFAULT '_'
 ) RETURNS VOID AS $FUNCTION$
 DECLARE
   w_max BIGINT;
@@ -180,14 +182,14 @@ BEGIN
     EXECUTE $$
       SELECT SETVAL($1, 1, false)
     $$ USING
-      't_' || p_key || '_all_' || p_key || '_id_seq'
+      't_' || p_key || p_postfix || p_key || '_id_seq'
     ;
   ELSE
     -- 最大IDを設定
     EXECUTE $$
       SELECT SETVAL($1 ,$2)
     $$ USING
-      't_' || p_key || '_all_' || p_key || '_id_seq'
+      't_' || p_key || p_postfix || p_key || '_id_seq'
       ,w_max
     ;
   END CASE;
